@@ -386,7 +386,7 @@ class ContentProductionState(TypedDict):
 from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
 
-# Инициализируем LLM (рекомендуется Claude 3.5 Sonnet для рабочих процессов) 
+# Инициализируем LLM (рекомендуется Claude Sonnet 4.6 для рабочих процессов) 
 llm = ChatAnthropic(model="claude-sonnet-4-5", temperature=0.2)
 
 def writer_node(state: ContentProductionState) -> dict:

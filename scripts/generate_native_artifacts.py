@@ -107,7 +107,7 @@ def get_studio_status() -> List[Dict[str, Any]]:
         print(f"Error fetching studio status: {e}", file=sys.stderr)
         return []
 
-def poll_artifact_status(artifact_id: str, timeout_mins: int = 15, interval_secs: int = 30) -> bool:
+def poll_artifact_status(artifact_id: str, timeout_mins: int = 15, interval_secs: int = 60) -> bool:
     """Polls the status of an artifact until it is completed or failed."""
     start_time = time.time()
     max_seconds = timeout_mins * 60
@@ -227,20 +227,20 @@ def process_week(week_num: int, lang: str):
         slides_id = trigger_slides(focus_prompt, lang)
         if slides_id:
             # Cooldown safety delay after trigger
-            time.sleep(10)
+            time.sleep(20)
             if poll_artifact_status(slides_id):
                 download_slides(slides_id, out_pdf)
             
     # Cooldown safety delay between RPC types
     if not (os.path.exists(out_mp4) and os.path.getsize(out_mp4) > 1000):
-        print("Waiting 15 seconds before triggering video overview...")
-        time.sleep(15)
+        print("Waiting 40 seconds before triggering video overview...")
+        time.sleep(40)
     
         # 2. Trigger & Process Video Overview
         video_id = trigger_video(focus_prompt, lang)
         if video_id:
             # Cooldown safety delay after trigger
-            time.sleep(10)
+            time.sleep(20)
             if poll_artifact_status(video_id, timeout_mins=15):
                 download_video(video_id, out_mp4)
     else:
@@ -268,10 +268,11 @@ def main():
             try:
                 process_week(week, lang)
                 # Cooldown safety delay between weeks
-                print("\nCooldown sleep for 20 seconds before starting next block...")
-                time.sleep(20)
+                print("\nCooldown sleep for 80 seconds before starting next block...")
+                time.sleep(80)
             except Exception as e:
                 print(f"Error processing Week {week} ({lang}): {e}", file=sys.stderr)
+
                 
     print("\n🎉 Native Media Generation and Download Pipeline completed successfully!")
 

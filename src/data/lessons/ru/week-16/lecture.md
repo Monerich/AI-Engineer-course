@@ -479,7 +479,7 @@ async def chat_endpoint(query: UserQuery):
  [ NODE: WebSearch ] ----(Tool Call)-------> [ EVENT: span_name="tavily_search" ]
  | | - query: "AI Trends 2026"
  v | - error: null
- [ NODE: Writer ] -------(LLM Call)--------> [ EVENT: span_name="claude-3-5-sonnet" ]
+ [ NODE: Writer ] -------(LLM Call)--------> [ EVENT: span_name="claude-sonnet-4-6" ]
  | | - prompt: "You are a writer..."
  | (4. Trace End) | - output: "Here is the report."
  v v
