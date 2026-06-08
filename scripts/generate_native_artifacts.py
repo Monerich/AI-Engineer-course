@@ -136,49 +136,64 @@ def poll_artifact_status(artifact_id: str, timeout_mins: int = 15, interval_secs
     return False
 
 def trigger_slides(focus_prompt: str, lang: str) -> Optional[str]:
-    """Triggers the creation of a slide deck in NotebookLM and returns the artifact ID."""
+    """Triggers the creation of a slide deck in NotebookLM and returns the artifact ID with retry on rate limit."""
     print(f"-> Triggering native Slide Deck in NotebookLM (Lang: {lang.upper()})...")
-    try:
-        output = run_command([
-            "nlm", "slides", "create", NOTEBOOK_ID,
-            "--language", lang,
-            "--focus", focus_prompt,
-            "-y"
-        ])
-        # Find ID in output e.g. "Artifact ID: 05f981c5-6f43-4826-a3de-9b970492f144"
-        for line in output.split("\n"):
-            if "Artifact ID:" in line:
-                artifact_id = line.split("Artifact ID:")[-1].strip()
-                print(f"✓ slide deck triggered successfully! ID: {artifact_id}")
-                return artifact_id
-        print(f"Failed to extract slide ID from command output: {output}", file=sys.stderr)
-        return None
-    except Exception as e:
-        print(f"Error triggering slides: {e}", file=sys.stderr)
-        return None
+    retries = 10
+    wait_time = 900  # 15 minutes
+    for attempt in range(retries):
+        try:
+            # Run without check=True to manually inspect output for Rate limited error
+            args = ["nlm", "slides", "create", NOTEBOOK_ID, "--language", lang, "--focus", focus_prompt, "-y"]
+            res = subprocess.run(args, capture_output=True, text=True)
+            output = res.stdout + "\n" + res.stderr
+            
+            if res.returncode == 0:
+                for line in output.split("\n"):
+                    if "Artifact ID:" in line:
+                        artifact_id = line.split("Artifact ID:")[-1].strip()
+                        print(f"✓ slide deck triggered successfully! ID: {artifact_id}")
+                        return artifact_id
+            
+            if "Rate limited" in output or "Wait a few minutes" in output:
+                print(f"Rate limited by Google. Waiting {wait_time}s before retrying (attempt {attempt+1}/{retries})...")
+                time.sleep(wait_time)
+            else:
+                print(f"Failed to trigger slides (exit code {res.returncode}): {output}", file=sys.stderr)
+                break
+        except Exception as e:
+            print(f"Error triggering slides: {e}", file=sys.stderr)
+            time.sleep(60)
+    return None
 
 def trigger_video(focus_prompt: str, lang: str) -> Optional[str]:
-    """Triggers the creation of a video overview in NotebookLM and returns the artifact ID."""
+    """Triggers the creation of a video overview in NotebookLM and returns the artifact ID with retry on rate limit."""
     print(f"-> Triggering native Video Overview in NotebookLM (Lang: {lang.upper()})...")
-    try:
-        output = run_command([
-            "nlm", "video", "create", NOTEBOOK_ID,
-            "--format", "explainer",
-            "--language", lang,
-            "--focus", focus_prompt,
-            "-y"
-        ])
-        # Find ID in output
-        for line in output.split("\n"):
-            if "Artifact ID:" in line:
-                artifact_id = line.split("Artifact ID:")[-1].strip()
-                print(f"✓ Video triggered successfully! ID: {artifact_id}")
-                return artifact_id
-        print(f"Failed to extract video ID from command output: {output}", file=sys.stderr)
-        return None
-    except Exception as e:
-        print(f"Error triggering video: {e}", file=sys.stderr)
-        return None
+    retries = 10
+    wait_time = 900  # 15 minutes
+    for attempt in range(retries):
+        try:
+            args = ["nlm", "video", "create", NOTEBOOK_ID, "--format", "explainer", "--language", lang, "--focus", focus_prompt, "-y"]
+            res = subprocess.run(args, capture_output=True, text=True)
+            output = res.stdout + "\n" + res.stderr
+            
+            if res.returncode == 0:
+                for line in output.split("\n"):
+                    if "Artifact ID:" in line:
+                        artifact_id = line.split("Artifact ID:")[-1].strip()
+                        print(f"✓ Video triggered successfully! ID: {artifact_id}")
+                        return artifact_id
+            
+            if "Rate limited" in output or "Wait a few minutes" in output:
+                print(f"Rate limited by Google. Waiting {wait_time}s before retrying (attempt {attempt+1}/{retries})...")
+                time.sleep(wait_time)
+            else:
+                print(f"Failed to trigger video (exit code {res.returncode}): {output}", file=sys.stderr)
+                break
+        except Exception as e:
+            print(f"Error triggering video: {e}", file=sys.stderr)
+            time.sleep(60)
+    return None
+
 
 def download_slides(artifact_id: str, output_path: str):
     """Downloads the slide deck PDF file."""
