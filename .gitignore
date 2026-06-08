@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated lesson media (large binary assets, ~500MB)
+/public/lessons/
+
+# python cache
+__pycache__/
+*.pyc

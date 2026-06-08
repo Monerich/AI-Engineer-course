@@ -1,26 +1,285 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Premium Warm Light Mode (Claude Style) */
+  --bg-primary: #F7F4EF;
+  --bg-secondary: #F1ECE4;
+  --bg-card: #FFFFFF;
+  --text-primary: #1F1F1F;
+  --text-secondary: #575757;
+  --accent: #E0533C; /* n8n-orange accent */
+  --accent-hover: #C5412B;
+  --border: #E5DEC9;
+  --border-light: #F1ECE4;
+  --badge-bg: #EAE3D2;
+  --sidebar-active: #EAE3D2;
+  
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Premium Obsidian Dark Mode (n8n Style) */
+    --bg-primary: #0D0D11;
+    --bg-secondary: #14141A;
+    --bg-card: #1F1F27;
+    --text-primary: #EDEDF0;
+    --text-secondary: #A1A1B2;
+    --accent: #FF5E4B; /* n8n-orange accent */
+    --accent-hover: #FF8066;
+    --border: #2E2E38;
+    --border-light: #25252F;
+    --badge-bg: #292934;
+    --sidebar-active: #2E2E38;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
 }
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Interactive elements */
+a, button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Claude/n8n Card styling */
+.premium-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.premium-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+}
+
+/* Checklist custom checkboxes */
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.checklist-item:hover {
+  background-color: var(--bg-secondary);
+}
+
+/* Progress bar animation */
+.progress-bar-fill {
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Scrollbar hide utility for tabs header */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Beautiful Rich Markdown Rendering */
+.markdown-content {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  font-size: 0.875rem; /* 14px for improved readability */
+  line-height: 1.6;
+}
+
+.markdown-content p {
+  margin-bottom: 1rem;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4 {
+  color: var(--text-primary);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.markdown-content h1 {
+  font-size: 1.625rem;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.markdown-content h2 {
+  font-size: 1.375rem;
+  border-b: 1px solid var(--border-light);
+  padding-bottom: 6px;
+  margin-top: 2rem;
+}
+
+.markdown-content h3 {
+  font-size: 1.125rem;
+}
+
+.markdown-content h4 {
+  font-size: 1rem;
+}
+
+.markdown-content strong {
+  font-weight: 900;
+  color: var(--text-primary);
+}
+
+/* Code Snippets & Syntax Highlighting */
+.markdown-content code {
+  font-family: var(--font-mono);
+  background-color: var(--bg-secondary);
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.markdown-content pre {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  color: var(--text-primary);
+  padding: 0;
+  font-weight: 400;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+/* Blockquotes & GitHub Style Alerts */
+.markdown-content blockquote {
+  border-left: 4px solid var(--accent);
+  background-color: var(--bg-secondary);
+  border-radius: 0 8px 8px 0;
+  margin: 1.5rem 0;
+  padding: 12px 16px;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.markdown-content blockquote p {
+  margin: 0;
+}
+
+/* Bullet and Numbered Lists */
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 24px;
+  margin-bottom: 1rem;
+}
+
+.markdown-content ul {
+  list-style-type: disc;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+}
+
+.markdown-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Premium Structured Tables */
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.8125rem;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid var(--border);
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.markdown-content th {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+.markdown-content tr:nth-child(even) {
+  background-color: var(--bg-secondary)/40;
+}
+
+/* Slide Deck Specific Overrides */
+.slides-layout h3 {
+  color: var(--accent);
+  font-size: 1.25rem;
+  margin-top: 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 6px;
+}
+
+.slides-layout hr {
+  border: 0;
+  height: 2px;
+  background-color: var(--border);
+  margin: 2.5rem 0;
+  opacity: 0.5;
+}
+
+/* Video Script Specific Overrides */
+.video-script-layout table {
+  margin-top: 2rem;
+}
+
+.video-script-layout th:first-child {
+  width: 30%;
+}
+
+.video-script-layout td:first-child {
+  font-weight: 800;
+  color: var(--accent);
+  background-color: var(--bg-secondary)/20;
+}
+
