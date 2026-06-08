@@ -193,7 +193,7 @@ logging.info(f"Extracted JSON:\n{json.dumps(structured_result, indent=2)}")
 import requests
 
 def push_to_crm_api(payload: dict):
- # Лекция 12: Чистая передача (Clean State Handoff)
+ # Чистая передача (Clean State Handoff)
  # Гарантируем, что мы отправляем только ожидаемые данные
  if "error" in payload:
  logging.warning("Skipping CRM push due to extraction error.")
@@ -353,7 +353,7 @@ from pydantic import BaseModel, Field, ValidationError
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# Лекция 11: Сделайте рантайм наблюдаемым
+# Сделайте рантайм наблюдаемым
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [NESTED_VALIDATOR] - %(message)s')
 
 load_dotenv()
@@ -410,14 +410,14 @@ def extract_nested_order(raw_text: str, max_retries: int = 3) -> dict:
  validated_order: B2BOrder = response.choices[0].message.parsed
  logging.info("Validation successful. Clean state achieved.")
  
- # Лекция 12: Каждая сессия должна оставлять чистое состояние 
+ # Каждая сессия должна оставлять чистое состояние 
  return validated_order.model_dump()
  
  except ValidationError as e:
  # Модель нарушила схему (например, передала строку вместо float)
  logging.warning(f"ValidationError encountered on attempt {attempt}.")
  
- # Лекция 10: Разработайте ориентированные на агентов сообщения об ошибках 
+ # Разработайте ориентированные на агентов сообщения об ошибках 
  # Формируем точную инструкцию по исправлению (что, почему, как исправить)
  error_details = e.errors()
  error_msg = f"Your last JSON output failed validation. Specifically:\n{error_details}\n\nPlease analyze these errors and output the completely corrected JSON."
@@ -597,7 +597,7 @@ from typing import Optional
 from openai import OpenAI, RateLimitError, APIConnectionError, InternalServerError
 from dotenv import load_dotenv
 
-# Лекция 11: Наблюдаемость рантайма
+# Наблюдаемость рантайма
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [RESILIENCE_HARNESS] - %(levelname)s: %(message)s')
 
 load_dotenv()
@@ -726,7 +726,7 @@ if __name__ == "__main__":
 
 > [!WARNING] 
 > **Слепые сбои (Silent Failures) и Verification Gap** 
-> **Ошибка:** Ваш скрипт настроен перехватывать *все* исключения (`except Exception:`). Внутри блока `except` вы пишете `return None` и забываете про логирование. Когда API падает, ваш агент получает `None`, радостно продолжает работу (думая, что база пуста) и пишет клиенту: *"Я проверил базу данных, ваших заказов не найдено"*. Это катастрофическое проявление *Verification Gap* (Лекция 01). 
+> **Ошибка:** Ваш скрипт настроен перехватывать *все* исключения (`except Exception:`). Внутри блока `except` вы пишете `return None` и забываете про логирование. Когда API падает, ваш агент получает `None`, радостно продолжает работу (думая, что база пуста) и пишет клиенту: *"Я проверил базу данных, ваших заказов не найдено"*. Это катастрофическое проявление *Verification Gap*. 
 > **Диагностическая петля (Diagnostic Loop):** Как описано в *Лекции 01*, вам необходимо создать Диагностическую петлю: «выполнить, увидеть провал, отнести его к конкретному слою harness, починить этот слой». Вы должны отлавливать конкретные исключения (`RateLimitError`, `Timeout`) и либо повторять попытку, либо совершать "Шумное падение" (Fail Loudly), эскалируя ошибку (Alerting) человеку, чтобы он вмешался до того, как модель нанесет вред.
 
 > [!NOTE] 
@@ -844,7 +844,7 @@ import logging
 from anthropic import Anthropic
 from dotenv import load_dotenv
 
-# Лекция 11: Наблюдаемость рантайма
+# Наблюдаемость рантайма
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [SDK_HARNESS] - %(message)s')
 
 load_dotenv()
@@ -1071,7 +1071,7 @@ from typing import Optional, Literal
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# Лекция 11: Наблюдаемость рантайма 
+# Наблюдаемость рантайма 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [GENERATION_HARNESS] - %(message)s')
 load_dotenv()
 
@@ -1321,7 +1321,7 @@ from dotenv import load_dotenv
 from openai import OpenAI, RateLimitError as OpenAIRateLimitError, APIConnectionError, InternalServerError
 from anthropic import Anthropic, RateLimitError as AnthropicRateLimitError, APIError as AnthropicAPIError
 
-# Лекция 11: Наблюдаемость рантайма
+# Наблюдаемость рантайма
 logging.basicConfig(
  level=logging.INFO, 
  format='%(asctime)s - [SELF_HEALING_HARNESS] - %(levelname)s: %(message)s'
@@ -1434,12 +1434,12 @@ class SelfHealingLLMClient:
 
  # Если оба провайдера упали
  logging.critical("PIPELINE DEGRADED: Both Primary and Fallback execution failed. Routing to Dead Letter Queue.")
- # Лекция 01: Diagnostic Loop - Записываем провал в лог для ручного разбора
+ # Diagnostic Loop - Записываем провал в лог для ручного разбора
  self._route_to_dlq(system_prompt, user_prompt)
  return None
  
  def _route_to_dlq(self, system: str, user: str):
- """Лекция 12: Чистое сохранение сбоев (Dead Letter Queue) для анализа."""
+ """Чистое сохранение сбоев (Dead Letter Queue) для анализа."""
  dlq_payload = {"system": system, "user": user, "timestamp": time.time()}
  with open("dlq_failures.jsonl", "a", encoding="utf-8") as f:
  f.write(json.dumps(dlq_payload) + "\n")
@@ -1492,7 +1492,7 @@ if __name__ == "__main__":
 > [!NOTE] 
 > **Verification Gap (Разрыв верификации) при Fallback-маршрутизации** 
 > **Проблема:** Вы переключились с Claude (Primary) на GPT-4o (Fallback). Вы передали тот же системный промпт. Однако GPT-4o иначе интерпретирует ваши инструкции по форматированию XML или JSON. Ваш парсер (BeautifulSoup/Pydantic), который идеально работал для ответов Claude, внезапно падает из-за того, что GPT-4o добавил блок ````json` вокруг ответа. 
-> **Решение:** *Только сквозное тестирование - настоящая верификация* (Лекция 10). При проектировании Fallback-логики вы обязаны прогонять свои тесты и оценки (Evals) на *обеих* моделях. Ваша обвязка должна иметь слой нормализации (Sanitization Layer), который очищает артефакты форматирования (`strip('`')`) независимо от того, какая модель сгенерировала текст.
+> **Решение:** *Только сквозное тестирование - настоящая верификация*. При проектировании Fallback-логики вы обязаны прогонять свои тесты и оценки (Evals) на *обеих* моделях. Ваша обвязка должна иметь слой нормализации (Sanitization Layer), который очищает артефакты форматирования (`strip('`')`) независимо от того, какая модель сгенерировала текст.
 
 Внедрив механизмы самовосстановления, перехвата лимитов и резервной маршрутизации, вы трансформируете хрупкий Python-скрипт в несокрушимый Enterprise-движок. Ваши агенты больше не ломаются от сетевого ветра - они сгибаются, адаптируются и всегда доводят задачу до конца. Как гласит философия статьи *Степана Кожевникова*, вы перестаете вслепую «кормить» нейросеть токенами и начинаете управлять потоком вычислений.
 
@@ -1697,7 +1697,7 @@ class AgentExtractionHarness:
  # Pydantic берет на себя парсинг и многоуровневую верификацию
  validated_data = ContractExtraction.model_validate_json(raw_llm_response)
  
- # Лекция 12: Чистая передача в конце каждой сессии
+ # Чистая передача в конце каждой сессии
  logging.info("Pydantic validation SUCCESS. Clean state handoff achieved.")
  return validated_data
  
@@ -1857,7 +1857,7 @@ from pydantic import BaseModel, Field, field_validator, ValidationError
 from openai import OpenAI
 import os
 
-# Инициализация наблюдаемости (Лекция 11)
+# Инициализация наблюдаемости
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [SELF_HEALING] - %(levelname)s: %(message)s')
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -1918,7 +1918,7 @@ class SelfHealingJSONParser:
  # 2. Pydantic Verification Layer (Момент истины)
  validated_data = TransactionRecord.model_validate_json(raw_json)
  
- # Лекция 12: Чистая передача в конце каждой сессии
+ # Чистая передача в конце каждой сессии
  logging.info(f"Verification SUCCESS on attempt {attempt}. Clean handoff ready.")
  return validated_data
  
@@ -1926,7 +1926,7 @@ class SelfHealingJSONParser:
  # 3. Перехват ошибки и форматирование (Diagnostic Loop)
  logging.warning(f"Verification GAP detected. Pydantic rejected the JSON on attempt {attempt}.")
  
- # Формируем человеко/агенто-читаемые инструкции по исправлению (Лекция 10)
+ # Формируем человеко/агенто-читаемые инструкции по исправлению
  error_feedback = []
  for error in e.errors():
  field_loc = ".".join(map(str, error['loc']))
@@ -2035,7 +2035,7 @@ if __name__ == "__main__":
 Почему массив словарей (List of Dicts) - это плохая архитектура для истории агента? Потому что она не обладает свойствами ACID (Атомарность, Согласованность, Изолированность, Долговечность) и не поддается структурному анализу.
 
 #### 1. Проблема неструктурированного контекста (Context Bloat)
-Если вы просто сохраняете весь текст диалога, вы быстро столкнетесь с явлением *Instruction Bloat* и эффектом *Lost in the Middle*. Согласно *Лекции 04*, исследование Liu et al. доказало, что «LLM используют информацию в середине длинных текстов значительно хуже, чем в начале или конце». Если история рассуждений агента не типизирована, вы не сможете программно отфильтровать «шум» (например, промежуточные ошибки парсинга) от «сигнала» (финальных выводов). Типизация каждого шага в класс позволяет вашему скрипту динамически сжимать (compact) историю, оставляя только суть.
+Если вы просто сохраняете весь текст диалога, вы быстро столкнетесь с явлением *Instruction Bloat* и эффектом *Lost in the Middle*. Исследование Liu et al. доказало, что «LLM используют информацию в середине длинных текстов значительно хуже, чем в начале или конце». Если история рассуждений агента не типизирована, вы не сможете программно отфильтровать «шум» (например, промежуточные ошибки парсинга) от «сигнала» (финальных выводов). Типизация каждого шага в класс позволяет вашему скрипту динамически сжимать (compact) историю, оставляя только суть.
 
 #### 2. Durable Execution (Надежное исполнение)
 В документе *карта развития ИИ-Агентов* в Фазе 5 прямо и жестко указано: «Durable execution (Inngest, Temporal или LangGraph PostgresSaver) необсуждаем для любого агента, который бежит >60 секунд». Вы должны делать «Чекпоинт состояния на каждом узле, чтобы можно было resume/rewind/fork». Это означает, что после каждого шага рассуждения (Thinking Step) Python-обвязка должна сериализовать Pydantic-объект в JSON и сохранить его на диск (или в SQLite/Postgres). Если сервер упадет на 59-й минуте работы агента, новая сессия должна мгновенно десериализовать объекты и продолжить с 60-й минуты, не теряя ни байта логики.
@@ -2105,7 +2105,7 @@ from typing import List, Optional, Any, Dict
 from datetime import datetime
 from pydantic import BaseModel, Field, model_validator
 
-# Наблюдаемость рантайма (Лекция 11)
+# Наблюдаемость рантайма
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [MEMORY_HARNESS] - %(message)s')
 
 class ReasoningStep(BaseModel):
@@ -2295,7 +2295,7 @@ if __name__ == "__main__":
 Чтобы система жила годами, архитектор должен проектировать ее с учетом неизбежных мутаций формата данных. В традиционной инженерии баз данных для этого есть инструменты вроде Alembic или Flyway. В мире Agentic AI миграции сложнее, потому что они затрагивают не только колонки в SQL, но и когнитивное понимание агента.
 
 #### 1. Иллюзия постоянства и Verification Gap при миграциях
-Согласно *Лекции 01*, главная проблема ИИ-инженерии - это «Verification Gap: разрыв между уверенностью агента в своей работе и реальной корректностью». Когда схема данных меняется, этот разрыв расширяется. Если вы обновили системный промпт, чтобы агент искал `seniority_level`, но забыли обновить схему базы данных или Pydantic-модель, агент будет уверенно генерировать новые ключи JSON, которые ваш код будет молча отбрасывать (или падать с ошибкой). Обвязка должна синхронизировать версии промптов и версии структур данных.
+Главная проблема ИИ-инженерии - это «Verification Gap: разрыв между уверенностью агента в своей работе и реальной корректностью». Когда схема данных меняется, этот разрыв расширяется. Если вы обновили системный промпт, чтобы агент искал `seniority_level`, но забыли обновить схему базы данных или Pydantic-модель, агент будет уверенно генерировать новые ключи JSON, которые ваш код будет молча отбрасывать (или падать с ошибкой). Обвязка должна синхронизировать версии промптов и версии структур данных.
 
 #### 2. Прямая и обратная совместимость (Backward and Forward Compatibility)
 В мире LLM-пайплайнов вы столкнетесь с двумя векторами совместимости:
@@ -2402,7 +2402,7 @@ class CandidateV2(BaseModel):
  
  @model_validator(mode='after')
  def validate_logic(self) -> 'CandidateV2':
- """Сквозная логическая проверка (Лекция 10)"""
+ """Сквозная логическая проверка"""
  if self.years_of_experience > 5 and self.seniority_level == "JUNIOR":
  raise ValueError("Candidate with >5 years experience cannot be JUNIOR.")
  return self
@@ -2466,7 +2466,7 @@ class MigrationHarness:
  def upgrade_v1_to_v2(self, v1_data: dict) -> CandidateV2:
  """
  Главный метод миграции. Атомарно преобразует словарь V1 в объект V2.
- Идемпотентная операция (Лекция 12).
+ Идемпотентная операция.
  """
  logging.info(f"Initiating migration for candidate: {v1_data.get('candidate_id')}")
  
@@ -2498,7 +2498,7 @@ class MigrationHarness:
  "primary_language": new_fields.get("primary_language")
  }
  
- # 5. Инстанцирование и сквозная Pydantic-верификация (Лекция 10)
+ # 5. Инстанцирование и сквозная Pydantic-верификация
  v2_obj = CandidateV2(**merged_dict)
  logging.info(f"Migration SUCCESS. Clean state handoff ready for ID: {v2_obj.candidate_id}")
  

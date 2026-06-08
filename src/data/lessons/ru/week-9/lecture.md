@@ -99,7 +99,7 @@ playwright install chromium
 ```
 
 #### Шаг 2: Реализация ядра скрейпинга
-Мы напишем класс `DynamicScraper`, который инкапсулирует логику рендеринга и парсинга. Этот код демонстрирует принципы *Harness Engineering* - в частности, «Сделайте рантайм агента наблюдаемым» через логирование каждого шага,.
+Мы напишем класс `DynamicScraper`, который инкапсулирует логику рендеринга и парсинга. Этот код демонстрирует принципы *Harness Engineering* - в частности, «Сделайте рантайм агента наблюдаемым» через логирование каждого шага.
 
 ```python
 import json
@@ -108,7 +108,7 @@ from typing import List, Dict, Optional
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 from bs4 import BeautifulSoup
 
-# Лекция 11: Наблюдаемость рантайма
+# Наблюдаемость рантайма
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [SCRAPER_HARNESS] - %(levelname)s: %(message)s')
 
 class DynamicScraper:
@@ -193,7 +193,7 @@ if __name__ == "__main__":
  
  if rendered_html:
  dataset = scraper.parse_books_catalog(rendered_html)
- # Лекция 12: Чистая передача в конце каждой сессии 
+ # Чистая передача в конце каждой сессии 
  # Вывод данных в формате JSON для интеграции с другими инструментами
  print(json.dumps(dataset, indent=2, ensure_ascii=False))
  else:
@@ -255,7 +255,7 @@ if __name__ == "__main__":
 
 Если вы попытаетесь передать сырой, многомегабайтный HTML-документ напрямую в следующий узел вашего рабочего процесса или, что еще хуже, в Large Language Model (LLM), вы столкнетесь с катастрофическими последствиями. Вы сожжете контекстное окно, вызовете галлюцинации и разорите своего клиента на токенах. Как гласит фундаментальное правило из *карта развития ИИ-Инженера*: «Каждая автоматизация, которую вы когда-либо построите, соединяет две системы через API... Вам нужно ПОНИМАТЬ их достаточно, чтобы прочитать документацию... и не пугаться JSON». 
 
-В этом исчерпывающем, продакшн-ориентированном руководстве мы освоим искусство трансформации хаотичной HTML-разметки в кристально чистые, детерминированные JSON-массивы. Основываясь на архитектурном принципе *«Чистая передача в конце каждой сессии»* (Лекция 12), мы создадим Python-пайплайны, которые служат идеальными шлюзами между грязным интернетом и строгими корпоративными базами данных.
+В этом исчерпывающем, продакшн-ориентированном руководстве мы освоим искусство трансформации хаотичной HTML-разметки в кристально чистые, детерминированные JSON-массивы. Основываясь на архитектурном принципе *«Чистая передача в конце каждой сессии»*, мы создадим Python-пайплайны, которые служат идеальными шлюзами между грязным интернетом и строгими корпоративными базами данных.
 
 ---
 
@@ -331,7 +331,7 @@ import re
 import logging
 from bs4 import BeautifulSoup
 
-# Лекция 11: Наблюдаемость рантайма
+# Наблюдаемость рантайма
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [HTML_PARSER] - %(levelname)s: %(message)s')
 
 def clean_price(price_str: str) -> float:
@@ -392,7 +392,7 @@ def parse_html_to_json(raw_html: str) -> list:
  parsed_dataset.append(item_data)
  
  except Exception as e:
- # Лекция 01: Сильная модель не означает надёжного исполнения. Скрипт не должен падать из-за одного битого элемента.
+ # Сильная модель не означает надёжного исполнения. Скрипт не должен падать из-за одного битого элемента.
  logging.error(f"Error parsing card at index {idx}: {str(e)}")
  continue
 
@@ -536,7 +536,7 @@ import requests
 import logging
 from typing import Optional
 
-# Лекция 11: Сделайте рантайм наблюдаемым 
+# Сделайте рантайм наблюдаемым 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [NETWORK_HARNESS] - %(message)s')
 
 def fetch_protected_page(url: str) -> Optional[str]:
@@ -564,7 +564,7 @@ def fetch_protected_page(url: str) -> Optional[str]:
  # Выполнение запроса с таймаутом (защита от зависания процесса)
  response = session.get(url, timeout=15)
  
- # Лекция 10: Сквозное тестирование и валидация
+ # Сквозное тестирование и валидация
  # Поднимаем исключение, если HTTP-статус >= 400
  response.raise_for_status() 
  
@@ -803,7 +803,7 @@ import requests
 import logging
 from typing import Dict, Any, List, Optional
 
-# Лекция 11: Наблюдаемость рантайма
+# Наблюдаемость рантайма
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [REST_API_HARNESS] - %(levelname)s: %(message)s')
 
 class CustomRESTClient:
@@ -891,7 +891,7 @@ API нестабильны. Вы должны знать основные «HTTP
  logging.warning("Received empty or failed payload during pagination.")
  break
  
- # Лекция 12: Чистая передача (Clean State Handoff).
+ # Чистая передача (Clean State Handoff).
  # Извлекаем только полезную нагрузку из "data", игнорируя метаданные API.
  records = data.get("data", [])
  all_records.extend(records)
@@ -913,7 +913,7 @@ API нестабильны. Вы должны знать основные «HTTP
 ```
 
 #### Шаг 4: Выполнение (Clean State Handoff)
-Теперь, когда мы вызываем этот код, наружу (в следующий узел n8n или в промпт агента) выходит только чистый Python-список со словарями. Согласно *Лекции 12. Чистая передача в конце каждой сессии*, «Каждая сессия должна оставлять чистое состояние». Никакого мусора от HTTP-протокола.
+Теперь, когда мы вызываем этот код, наружу (в следующий узел n8n или в промпт агента) выходит только чистый Python-список со словарями. «Каждая сессия должна оставлять чистое состояние». Никакого мусора от HTTP-протокола.
 
 ```python
 # Использование в продакшне
@@ -1003,7 +1003,7 @@ API погоды возвращает огромный, многоуровнев
 В *Лекции 11. Сделайте рантайм агента наблюдаемым* прямо указано: «Без наблюдаемости агенты принимают решения в условиях неопределённости... ретраи превращаются в слепое блуждание». Наш скрипт не имеет права просто делать `print(data)`. Он обязан вести структурированный лог (`logging.info`, `logging.error`). Запись каждого шага (формирование URL, статус ответа, успешность парсинга) в локальный `.log` файл - это фундамент, который позволит вам отлаживать систему в 3 часа ночи, когда API стороннего сервиса внезапно изменит структуру JSON.
 
 #### 3. Паттерн "Чистая передача" (Clean State Handoff)
-Согласно *Лекции 12. Чистая передача в конце каждой сессии*, ни один скрипт не должен отдавать "грязные" данные (например, сырые объекты `Response` из библиотеки `requests`) на следующий этап пайплайна. Наш скрипт должен извлечь нужные данные, нормализовать их, записать статус в лог и вернуть строго типизированный словарь Python (или отформатированную строку), готовый к инъекции в промпт ИИ-агента.
+Ни один скрипт не должен отдавать "грязные" данные (например, сырые объекты `Response` из библиотеки `requests`) на следующий этап пайплайна. Наш скрипт должен извлечь нужные данные, нормализовать их, записать статус в лог и вернуть строго типизированный словарь Python (или отформатированную строку), готовый к инъекции в промпт ИИ-агента.
 
 ---
 
@@ -1078,7 +1078,7 @@ from requests.exceptions import RequestException, HTTPError, Timeout
 from datetime import datetime
 
 # ==========================================
-# Инициализация Наблюдаемости (Лекция 11)
+# Инициализация Наблюдаемости
 # ==========================================
 # Мы настраиваем логирование так, чтобы оно писало и в консоль, и в файл.
 log_filename = f"weather_agent_{datetime.now().strftime('%Y-%m-%d')}.log"
@@ -1337,7 +1337,7 @@ if __name__ == "__main__":
 Мы разработаем класс `AgentWorkspaceManager`, который реализует управление состоянием (State Management), создание структуры папок для базы знаний (Knowledge Base) и `Filesystem offload`.
 
 #### Шаг 1: Инициализация и создание структуры (Bootstrap Contract)
-Согласно *Лекции 06*, агенты не должны инициализировать проект сами. Инициализация - это «первая фаза в жизненном цикле агента - никакой реализации фич, только подготовка предпосылок для всех последующих фаз реализации. На выходе не код, а инфраструктура».
+Агенты не должны инициализировать проект сами. Инициализация - это «первая фаза в жизненном цикле агента - никакой реализации фич, только подготовка предпосылок для всех последующих фаз реализации. На выходе не код, а инфраструктура».
 
 ```python
 import json
@@ -1346,7 +1346,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional, Dict
 
-# Лекция 11: Сделайте рантайм наблюдаемым
+# Сделайте рантайм наблюдаемым
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [FS_HARNESS] - %(message)s')
 
 class AgentWorkspaceManager:
@@ -1361,7 +1361,7 @@ class AgentWorkspaceManager:
  self.wiki_dir = self.base_dir / "wiki"
  self.outputs_dir = self.base_dir / "outputs"
  
- # Лекция 06: Инициализация как отдельная фаза
+ # Инициализация как отдельная фаза
  self._bootstrap_workspace()
 
  def _bootstrap_workspace(self):
@@ -1441,7 +1441,7 @@ class AgentWorkspaceManager:
  def enforce_clean_state(self):
  """
  Лекция 12: Чистая передача в конце каждой сессии.
- Удаляет временные (.tmp,.debug) файлы, чтобы следующая сессия не запуталась.
+ Удаляет временные (.tmp.debug) файлы, чтобы следующая сессия не запуталась.
  """
  logging.info("Enforcing clean state. Scanning for dangling artifacts...")
  cleanup_count = 0
@@ -1489,7 +1489,7 @@ if __name__ == "__main__":
 * **Экономика:** Построение таких конвейеров экономит сотни часов ручного труда контент-менеджеров, снижая себестоимость производства одной статьи с $50 до $0.50.
 
 **2. Автоматическая подготовка сред (Provisioning)**
-Когда вы нанимаете агента для разработки (например, Claude Code), вы не хотите каждый раз вручную копировать ему инструкции по стилю. Согласно руководству `корпоративный гайд по Claude`, необходимо «создать папку 'Claude Context' и внутри - три файла:,, ». ИИ-инженер пишет скрипт `init.sh` или Python-аналог, который при запуске нового проекта мгновенно создает эту файловую структуру, подтягивая свежие гайдлайны с корпоративного сервера. Это гарантирует, что агент всегда работает с правильным контекстом.
+Когда вы нанимаете агента для разработки (например, Claude Code), вы не хотите каждый раз вручную копировать ему инструкции по стилю. Согласно руководству `корпоративный гайд по Claude`, необходимо «создать папку 'Claude Context' и внутри - три файла:, ». ИИ-инженер пишет скрипт `init.sh` или Python-аналог, который при запуске нового проекта мгновенно создает эту файловую структуру, подтягивая свежие гайдлайны с корпоративного сервера. Это гарантирует, что агент всегда работает с правильным контекстом.
 
 ---
 
@@ -1609,7 +1609,7 @@ import logging
 import json
 from typing import List, Dict, Any
 
-# Лекция 11: Наблюдаемость рантайма
+# Наблюдаемость рантайма
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [ASYNC_HARNESS] - %(levelname)s: %(message)s')
 
 class AsyncAgentOrchestrator:
@@ -1660,7 +1660,7 @@ class AsyncAgentOrchestrator:
  total_tasks = len(tasks_payloads)
  logging.info(f"Starting batch workflow for {total_tasks} tasks...")
  
- # Лекция 12: Чистое состояние. Создаем сессию и гарантируем ее закрытие.
+ # Чистое состояние. Создаем сессию и гарантируем ее закрытие.
  async with aiohttp.ClientSession() as session:
  # Генерация списка корутин (promises)
  coroutines = [
@@ -1869,7 +1869,7 @@ from typing import List, Dict, Any
 from anthropic import AsyncAnthropic
 from dotenv import load_dotenv
 
-# Лекция 11: Наблюдаемость рантайма (Observability) 
+# Наблюдаемость рантайма (Observability) 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [PIPELINE_HARNESS] - %(message)s')
 load_dotenv()
 
@@ -1883,7 +1883,7 @@ class TranslationHarness:
  self.semaphore = asyncio.Semaphore(concurrency_limit)
  self.ai_client = AsyncAnthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
  
- # Лекция 3: Репозиторий как источник истины 
+ # Репозиторий как источник истины 
  # Загружаем инструкции из файловой системы, а не хардкодим их в "узле"
  self.system_prompt = self._load_system_prompt()
 
@@ -1933,7 +1933,7 @@ class TranslationHarness:
  """Оркестратор, заменяющий визуальные линии между узлами n8n."""
  logging.info(f"Starting pipeline execution for {len(target_ids)} items.")
  
- # Лекция 12: Чистая передача в конце каждой сессии 
+ # Чистая передача в конце каждой сессии 
  # Сессия aiohttp гарантированно закроется при выходе из блока with
  async with aiohttp.ClientSession() as http_session:
  # Шаг 1: Параллельный сбор данных (HTTP Request)
@@ -2098,7 +2098,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Any
 from anthropic import AsyncAnthropic
 
-# Лекция 11: Сделайте рантайм наблюдаемым
+# Сделайте рантайм наблюдаемым
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [BILLING_HARNESS] - %(message)s')
 
 # Таблицы стоимости за 1 миллион токенов (USD) по состоянию на 2026 год
@@ -2186,7 +2186,7 @@ class TokenBillingTracker:
  f.write(json.dumps(log_entry) + "\n")
 
  def print_session_report(self):
- """Лекция 12: Чистая передача в конце сессии (Вывод финансового итога)."""
+ """Чистая передача в конце сессии (Вывод финансового итога)."""
  logging.info("=== 💰 FINAL SESSION BILLING REPORT ===")
  logging.info(f"Total Input Tokens: {self.total_input_tokens}")
  logging.info(f"Total Output Tokens: {self.total_output_tokens}")
@@ -2306,7 +2306,7 @@ if __name__ == "__main__":
 
 ### Глубокий теоретический анализ: Физика сбоев и Exponential Backoff
 
-Для создания надежной обвязки (harness) необходимо деконструировать механику сетевых сбоев и математику восстановления. Согласно *карта развития ИИ-Агентов*, компонент «Tool dispatch» профессиональной обвязки обязан включать «параллельные вызовы, восстановление, retries». 
+Для создания надежной обвязки (harness) необходимо деконструировать механику сетевых сбоев и математику восстановления. Компонент «Tool dispatch» профессиональной обвязки обязан включать «параллельные вызовы, восстановление, retries». 
 
 #### 1. Анатомия API-ошибок
 Не все ошибки равны. Ваш декоратор должен обладать когнитивным интеллектом, чтобы различать их:
@@ -2382,7 +2382,7 @@ from functools import wraps
 from typing import Callable, Any
 import aiohttp # Для демонстрации сетевых исключений
 
-# Лекция 11: Наблюдаемость рантайма
+# Наблюдаемость рантайма
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [RETRY_HARNESS] - %(levelname)s: %(message)s')
 
 class TransientNetworkError(Exception):
