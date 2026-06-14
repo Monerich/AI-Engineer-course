@@ -14,6 +14,8 @@ interface WeekDetailClientProps {
   lang: "ru" | "en";
   weekId: string;
   lectureHtml?: string;
+  slidesHtml?: string;
+  videoHtml?: string;
   slidesPdfUrl?: string;
   videoMp4Url?: string;
 }
@@ -22,6 +24,8 @@ export default function WeekDetailClient({
   lang, 
   weekId,
   lectureHtml = "",
+  slidesHtml = "",
+  videoHtml = "",
   slidesPdfUrl,
   videoMp4Url
 }: WeekDetailClientProps) {
@@ -257,7 +261,7 @@ export default function WeekDetailClient({
           </section>
 
           {/* Learning Materials Tabs */}
-          {(lectureHtml || slidesPdfUrl || videoMp4Url) && (
+          {(lectureHtml || slidesPdfUrl || slidesHtml || videoMp4Url || videoHtml) && (
             <section className="premium-card p-6 md:p-8 flex flex-col gap-6">
               <div className="flex border-b border-[var(--border-light)] pb-2 gap-6 overflow-x-auto scrollbar-none">
                 {lectureHtml && (
@@ -272,7 +276,7 @@ export default function WeekDetailClient({
                     {lang === "ru" ? "📖 Урок / Лекция" : "📖 Lecture Lesson"}
                   </button>
                 )}
-                {slidesPdfUrl && (
+                {(slidesPdfUrl || slidesHtml) && (
                   <button
                     onClick={() => setActiveMaterialTab("slides")}
                     className={`pb-2.5 text-xs font-black uppercase tracking-wider transition-all cursor-pointer border-b-2 -mb-2.5 whitespace-nowrap ${
@@ -284,7 +288,7 @@ export default function WeekDetailClient({
                     {lang === "ru" ? "📊 Презентация" : "📊 Presentation"}
                   </button>
                 )}
-                {videoMp4Url && (
+                {(videoMp4Url || videoHtml) && (
                   <button
                     onClick={() => setActiveMaterialTab("video")}
                     className={`pb-2.5 text-xs font-black uppercase tracking-wider transition-all cursor-pointer border-b-2 -mb-2.5 whitespace-nowrap ${
@@ -307,24 +311,42 @@ export default function WeekDetailClient({
                   />
                 )}
                 
-                {activeMaterialTab === "slides" && slidesPdfUrl && (
-                  <div className="w-full h-[450px] md:h-[600px] border border-[var(--border)] rounded-2xl overflow-hidden shadow-lg bg-[var(--bg-secondary)]">
-                    <iframe
-                      src={`${slidesPdfUrl}#view=FitH`}
-                      className="w-full h-full border-0"
-                      title="NotebookLM Slide Deck"
-                    />
-                  </div>
+                {activeMaterialTab === "slides" && (
+                  slidesPdfUrl ? (
+                    <div className="w-full h-[450px] md:h-[600px] border border-[var(--border)] rounded-2xl overflow-hidden shadow-lg bg-[var(--bg-secondary)]">
+                      <iframe
+                        src={`${slidesPdfUrl}#view=FitH`}
+                        className="w-full h-full border-0"
+                        title="NotebookLM Slide Deck"
+                      />
+                    </div>
+                  ) : (
+                    slidesHtml && (
+                      <div 
+                        className="flex flex-col gap-4 markdown-content slides-layout"
+                        dangerouslySetInnerHTML={{ __html: slidesHtml }}
+                      />
+                    )
+                  )
                 )}
                 
-                {activeMaterialTab === "video" && videoMp4Url && (
-                  <div className="relative w-full aspect-video border border-[var(--border)] rounded-2xl overflow-hidden shadow-xl bg-black flex items-center justify-center">
-                    <video
-                      src={videoMp4Url}
-                      controls
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
+                {activeMaterialTab === "video" && (
+                  videoMp4Url ? (
+                    <div className="relative w-full aspect-video border border-[var(--border)] rounded-2xl overflow-hidden shadow-xl bg-black flex items-center justify-center">
+                      <video
+                        src={videoMp4Url}
+                        controls
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    videoHtml && (
+                      <div 
+                        className="flex flex-col gap-4 markdown-content video-script-layout"
+                        dangerouslySetInnerHTML={{ __html: videoHtml }}
+                      />
+                    )
+                  )
                 )}
               </div>
             </section>
