@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { curriculumData } from "../data/curriculum";
@@ -17,20 +17,20 @@ export default function DashboardClient({ lang }: DashboardClientProps) {
   const weeks = Object.values(content.weeks).sort((a, b) => a.weekNum - b.weekNum);
 
   // Client-side progress state
-  const [completedWeeks, setCompletedWeeks] = useState<string[]>([]);
-  const [activeMonth, setActiveMonth] = useState<number | null>(null);
+  const [completedWeeks] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
 
-  useEffect(() => {
-    // Load progress from localStorage
     const saved = localStorage.getItem("ai_course_progress_weeks");
-    if (saved) {
-      try {
-        setCompletedWeeks(JSON.parse(saved));
-      } catch (e) {
-        console.error(e);
-      }
+    if (!saved) return [];
+
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+      return [];
     }
-  }, []);
+  });
+  const [activeMonth, setActiveMonth] = useState<number | null>(null);
 
   const totalWeeksCount = weeks.length;
   const completedCount = completedWeeks.length;

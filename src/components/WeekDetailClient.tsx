@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { curriculumData, WeekData } from "../data/curriculum";
@@ -14,9 +14,6 @@ interface WeekDetailClientProps {
   lang: "ru" | "en";
   weekId: string;
   lectureHtml?: string;
-  slidesHtml?: string;
-  slidesHtmlList?: string[];
-  videoHtml?: string;
   slidesPdfUrl?: string;
   videoMp4Url?: string;
 }
@@ -25,9 +22,6 @@ export default function WeekDetailClient({
   lang, 
   weekId,
   lectureHtml = "",
-  slidesHtml = "",
-  slidesHtmlList = [],
-  videoHtml = "",
   slidesPdfUrl,
   videoMp4Url
 }: WeekDetailClientProps) {
@@ -38,44 +32,35 @@ export default function WeekDetailClient({
   const weeks = Object.values(content.weeks).sort((a, b) => a.weekNum - b.weekNum);
 
   // States
-  const [completedWeeks, setCompletedWeeks] = useState<string[]>([]);
-  const [checklistProgress, setChecklistProgress] = useState<Record<string, boolean>>({});
+  const [completedWeeks, setCompletedWeeks] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+
+    const savedWeeks = localStorage.getItem("ai_course_progress_weeks");
+    if (!savedWeeks) return [];
+
+    try {
+      return JSON.parse(savedWeeks);
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  });
+  const [checklistProgress, setChecklistProgress] = useState<Record<string, boolean>>(() => {
+    if (typeof window === "undefined") return {};
+
+    const savedChecklist = localStorage.getItem(`ai_course_checklist_${weekId}`);
+    if (!savedChecklist) return {};
+
+    try {
+      return JSON.parse(savedChecklist);
+    } catch (e) {
+      console.error(e);
+      return {};
+    }
+  });
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [showQuizResults, setShowQuizResults] = useState(false);
   const [activeMaterialTab, setActiveMaterialTab] = useState<"lecture" | "slides" | "video">("lecture");
-  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
-  const [slidesViewMode, setSlidesViewMode] = useState<"interactive" | "pdf">("interactive");
-  const [videoViewMode, setVideoViewMode] = useState<"video" | "script">("video");
-
-  useEffect(() => {
-    // Load general progress from localStorage
-    const savedWeeks = localStorage.getItem("ai_course_progress_weeks");
-    if (savedWeeks) {
-      try {
-        setCompletedWeeks(JSON.parse(savedWeeks));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    // Load checklist progress for this specific week
-    const savedChecklist = localStorage.getItem(`ai_course_checklist_${weekId}`);
-    if (savedChecklist) {
-      try {
-        setChecklistProgress(JSON.parse(savedChecklist));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    // Reset states when changing weeks
-    setSelectedAnswers({});
-    setShowQuizResults(false);
-    setActiveMaterialTab("lecture");
-    setActiveSlideIndex(0);
-    setSlidesViewMode(slidesPdfUrl ? "pdf" : "interactive");
-    setVideoViewMode(videoMp4Url ? "video" : "script");
-  }, [weekId, slidesPdfUrl, videoMp4Url]);
 
   if (!week) {
     return (
@@ -272,7 +257,7 @@ export default function WeekDetailClient({
           </section>
 
           {/* Learning Materials Tabs */}
-          {(lectureHtml || slidesHtml || videoHtml) && (
+          {(lectureHtml || slidesPdfUrl || videoMp4Url) && (
             <section className="premium-card p-6 md:p-8 flex flex-col gap-6">
               <div className="flex border-b border-[var(--border-light)] pb-2 gap-6 overflow-x-auto scrollbar-none">
                 {lectureHtml && (
@@ -287,7 +272,7 @@ export default function WeekDetailClient({
                     {lang === "ru" ? "📖 Урок / Лекция" : "📖 Lecture Lesson"}
                   </button>
                 )}
-                {slidesHtml && (
+                {slidesPdfUrl && (
                   <button
                     onClick={() => setActiveMaterialTab("slides")}
                     className={`pb-2.5 text-xs font-black uppercase tracking-wider transition-all cursor-pointer border-b-2 -mb-2.5 whitespace-nowrap ${
@@ -296,10 +281,10 @@ export default function WeekDetailClient({
                         : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     }`}
                   >
-                    {lang === "ru" ? "📊 Презентация (Слайды)" : "📊 Presentation Slides"}
+                    {lang === "ru" ? "📊 Презентация" : "📊 Presentation"}
                   </button>
                 )}
-                {videoHtml && (
+                {videoMp4Url && (
                   <button
                     onClick={() => setActiveMaterialTab("video")}
                     className={`pb-2.5 text-xs font-black uppercase tracking-wider transition-all cursor-pointer border-b-2 -mb-2.5 whitespace-nowrap ${
@@ -308,7 +293,7 @@ export default function WeekDetailClient({
                         : "border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     }`}
                   >
-                    {lang === "ru" ? "🎥 Сценарий видео" : "🎥 Video Script"}
+                    {lang === "ru" ? "🎥 Видеоурок" : "🎥 Video Lesson"}
                   </button>
                 )}
               </div>
@@ -322,204 +307,23 @@ export default function WeekDetailClient({
                   />
                 )}
                 
-                {activeMaterialTab === "slides" && (
-                  <div className="flex flex-col gap-6 w-full">
-                    {slidesPdfUrl && (
-                      <div className="flex border border-[var(--border)] rounded-xl p-1 bg-[var(--bg-secondary)]/50 self-start mb-2 max-w-xs">
-                        <button
-                          onClick={() => setSlidesViewMode("pdf")}
-                          className={`flex-1 px-4 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer select-none whitespace-nowrap ${
-                            slidesViewMode === "pdf"
-                              ? "bg-[var(--accent)] text-white shadow-sm"
-                              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                          }`}
-                        >
-                          {lang === "ru" ? "📄 PDF-Презентация" : "📄 PDF Slide Deck"}
-                        </button>
-                        <button
-                          onClick={() => setSlidesViewMode("interactive")}
-                          className={`flex-1 px-4 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer select-none whitespace-nowrap ${
-                            slidesViewMode === "interactive"
-                              ? "bg-[var(--accent)] text-white shadow-sm"
-                              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                          }`}
-                        >
-                          {lang === "ru" ? "📊 Интерактив" : "📊 Interactive"}
-                        </button>
-                      </div>
-                    )}
-
-                    {slidesViewMode === "pdf" && slidesPdfUrl ? (
-                      <div className="flex flex-col gap-4 w-full">
-                        <div className="flex flex-col sm:flex-row justify-between sm:items-center bg-[var(--bg-secondary)] border border-[var(--border)] p-4 rounded-xl gap-4">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded bg-orange-500/10 text-orange-500 flex-shrink-0">
-                              <Award className="w-5 h-5" />
-                            </div>
-                            <div>
-                              <h4 className="text-xs font-black text-[var(--text-primary)]">
-                                {lang === "ru" ? "Официальная презентация NotebookLM" : "Official NotebookLM Slide Deck"}
-                              </h4>
-                              <p className="text-[10px] text-[var(--text-secondary)]">
-                                {lang === "ru" ? "Сгенерировано искусственным интеллектом по материалам курса" : "AI-generated directly from course source materials"}
-                              </p>
-                            </div>
-                          </div>
-                          <a
-                            href={slidesPdfUrl}
-                            download={`Week_${week.weekNum}_Slides.pdf`}
-                            className="px-4 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer self-start sm:self-auto shadow-sm"
-                          >
-                            <ClipboardList className="w-3.5 h-3.5" />
-                            {lang === "ru" ? "Скачать PDF" : "Download PDF"}
-                          </a>
-                        </div>
-                        <div className="w-full h-[450px] md:h-[600px] border border-[var(--border)] rounded-2xl overflow-hidden shadow-lg bg-[var(--bg-secondary)]">
-                          <iframe
-                            src={`${slidesPdfUrl}#view=FitH`}
-                            className="w-full h-full border-0"
-                            title="NotebookLM Slide Deck"
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      slidesHtmlList && slidesHtmlList.length > 0 ? (
-                        <div className="flex flex-col gap-6 w-full">
-                          {/* Premium Interactive Slide Player */}
-                          <div className="relative aspect-video w-full border border-[var(--border)] rounded-2xl bg-[var(--bg-secondary)] dark:bg-[#14141A] p-6 md:p-10 flex flex-col justify-between shadow-xl min-h-[360px] md:min-h-[420px] transition-all">
-                            {/* Slide Header */}
-                            <div className="flex items-center justify-between border-b border-[var(--border-light)] pb-4 mb-4">
-                              <span className="text-[10px] font-black tracking-widest text-[var(--accent)] uppercase bg-[var(--badge-bg)] px-2.5 py-1 rounded">
-                                {lang === "ru" ? "СЛАЙД" : "SLIDE"} {activeSlideIndex + 1} / {slidesHtmlList.length}
-                              </span>
-                              <span className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider truncate max-w-[200px] md:max-w-xs">
-                                {week.title}
-                              </span>
-                            </div>
-
-                            {/* Slide Canvas */}
-                            <div 
-                              className="flex-1 flex flex-col justify-center text-sm font-semibold leading-relaxed text-[var(--text-primary)] markdown-content slides-layout select-none overflow-y-auto"
-                              dangerouslySetInnerHTML={{ __html: slidesHtmlList[activeSlideIndex] }}
-                            />
-
-                            {/* Slide Footer */}
-                            <div className="mt-6 pt-3 border-t border-[var(--border-light)] flex justify-between items-center text-[9px] text-[var(--text-secondary)] font-bold tracking-wider">
-                               <span>AI AUTOMATION & AGENT BUILDER</span>
-                               <span>MONTH {week.monthNum} • WEEK {week.weekNum}</span>
-                            </div>
-                          </div>
-
-                          {/* Slide Controls Dashboard */}
-                          <div className="flex items-center justify-between px-2">
-                            <button
-                              onClick={() => setActiveSlideIndex(prev => Math.max(0, prev - 1))}
-                              disabled={activeSlideIndex === 0}
-                              className="flex items-center gap-1.5 px-4 py-2.5 border border-[var(--border)] bg-[var(--bg-card)] rounded-xl text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] disabled:opacity-30 disabled:hover:bg-[var(--bg-card)] cursor-pointer shadow-sm select-none"
-                            >
-                              <ArrowLeft className="w-4 h-4" />
-                              {lang === "ru" ? "Назад" : "Back"}
-                            </button>
-
-                            {/* Progress Indicator Slider */}
-                            <div className="flex-1 bg-[var(--border-light)] h-2 rounded-full mx-6 overflow-hidden relative max-w-[240px] shadow-inner">
-                              <div 
-                                className="bg-[var(--accent)] h-full transition-all duration-300 rounded-full"
-                                style={{ width: `${((activeSlideIndex + 1) / slidesHtmlList.length) * 100}%` }}
-                              />
-                            </div>
-
-                            <button
-                              onClick={() => setActiveSlideIndex(prev => Math.min(slidesHtmlList.length - 1, prev + 1))}
-                              disabled={activeSlideIndex === slidesHtmlList.length - 1}
-                               className="flex items-center gap-1.5 px-4 py-2.5 border border-[var(--border)] bg-[var(--bg-card)] rounded-xl text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] disabled:opacity-30 disabled:hover:bg-[var(--bg-card)] cursor-pointer shadow-sm select-none"
-                            >
-                              {lang === "ru" ? "Вперед" : "Next"}
-                              <ArrowRight className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        // Fallback if split failed or list empty
-                        slidesHtml && (
-                          <div 
-                            className="flex flex-col gap-4 markdown-content slides-layout"
-                            dangerouslySetInnerHTML={{ __html: slidesHtml }}
-                          />
-                        )
-                      )
-                    )}
+                {activeMaterialTab === "slides" && slidesPdfUrl && (
+                  <div className="w-full h-[450px] md:h-[600px] border border-[var(--border)] rounded-2xl overflow-hidden shadow-lg bg-[var(--bg-secondary)]">
+                    <iframe
+                      src={`${slidesPdfUrl}#view=FitH`}
+                      className="w-full h-full border-0"
+                      title="NotebookLM Slide Deck"
+                    />
                   </div>
                 )}
                 
-                {activeMaterialTab === "video" && (
-                  <div className="flex flex-col gap-6 w-full">
-                    {videoMp4Url && (
-                      <div className="flex border border-[var(--border)] rounded-xl p-1 bg-[var(--bg-secondary)]/50 self-start mb-2 max-w-xs">
-                        <button
-                          onClick={() => setVideoViewMode("video")}
-                          className={`flex-1 px-4 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer select-none whitespace-nowrap ${
-                            videoViewMode === "video"
-                              ? "bg-[var(--accent)] text-white shadow-sm"
-                              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                          }`}
-                        >
-                          {lang === "ru" ? "🎥 Видеоурок" : "🎥 Video Lesson"}
-                        </button>
-                        <button
-                          onClick={() => setVideoViewMode("script")}
-                          className={`flex-1 px-4 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer select-none whitespace-nowrap ${
-                            videoViewMode === "script"
-                              ? "bg-[var(--accent)] text-white shadow-sm"
-                              : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                          }`}
-                        >
-                          {lang === "ru" ? "📝 Сценарий" : "📝 Text Script"}
-                        </button>
-                      </div>
-                    )}
-                    
-                    {videoViewMode === "video" && videoMp4Url ? (
-                      <div className="flex flex-col gap-4 w-full">
-                        <div className="flex flex-col sm:flex-row justify-between sm:items-center bg-[var(--bg-secondary)] border border-[var(--border)] p-4 rounded-xl gap-4">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded bg-red-500/10 text-red-500 flex-shrink-0">
-                              <Play className="w-5 h-5 animate-pulse" />
-                            </div>
-                            <div>
-                              <h4 className="text-xs font-black text-[var(--text-primary)]">
-                                {lang === "ru" ? "Официальный видеоурок NotebookLM" : "Official NotebookLM Video Overview"}
-                              </h4>
-                              <p className="text-[10px] text-[var(--text-secondary)]">
-                                {lang === "ru" ? "Интерактивный AI-видеоурок, сгенерированный по материалам курса" : "AI-synthesized video overview generated from course sources"}
-                              </p>
-                            </div>
-                          </div>
-                          <a
-                            href={videoMp4Url}
-                            download={`Week_${week.weekNum}_Video.mp4`}
-                            className="px-4 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer self-start sm:self-auto shadow-sm"
-                          >
-                            <Play className="w-3.5 h-3.5" />
-                            {lang === "ru" ? "Скачать MP4" : "Download MP4"}
-                          </a>
-                        </div>
-                        <div className="relative w-full aspect-video border border-[var(--border)] rounded-2xl overflow-hidden shadow-xl bg-black flex items-center justify-center">
-                          <video
-                            src={videoMp4Url}
-                            controls
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      videoHtml && (
-                        <div 
-                          className="flex flex-col gap-4 markdown-content video-script-layout"
-                          dangerouslySetInnerHTML={{ __html: videoHtml }}
-                        />
-                      )
-                    )}
+                {activeMaterialTab === "video" && videoMp4Url && (
+                  <div className="relative w-full aspect-video border border-[var(--border)] rounded-2xl overflow-hidden shadow-xl bg-black flex items-center justify-center">
+                    <video
+                      src={videoMp4Url}
+                      controls
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                 )}
               </div>
@@ -615,7 +419,6 @@ export default function WeekDetailClient({
               <div className="flex flex-col gap-8">
                 {week.quiz.map((q, qIdx) => {
                   const selectedOpt = selectedAnswers[qIdx];
-                  const hasAnswered = selectedOpt !== undefined;
                   const isCorrect = selectedOpt === q.answerIndex;
                   
                   return (

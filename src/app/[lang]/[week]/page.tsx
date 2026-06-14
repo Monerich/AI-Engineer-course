@@ -38,7 +38,7 @@ function cleanNotebookLmMarkdown(rawContent: string): string {
       if (answer) {
         content = answer.trim();
       }
-    } catch (e) {
+    } catch {
       // Ignore JSON error, keep raw content
     }
   }
@@ -87,9 +87,6 @@ export default async function Page({ params }: PageProps) {
   const validatedLang = lang === "en" ? "en" : "ru";
 
   let lectureHtml = "";
-  let slidesHtml = "";
-  let slidesHtmlList: string[] = [];
-  let videoHtml = "";
 
   try {
     const baseDir = path.join(process.cwd(), "src", "data", "lessons", validatedLang, week);
@@ -106,36 +103,6 @@ export default async function Page({ params }: PageProps) {
         /<h2>((?:\d+\.\s+)?(?:Блок|Block)\s+(\d+)[\s:(])/g,
         (_match, text, num) => `<h2 id="lecture-block-${num}">${text}`
       );
-    }
-
-    // Load and compile slides
-    const slidesPath = path.join(baseDir, "slides.md");
-    if (fs.existsSync(slidesPath)) {
-      const rawContent = fs.readFileSync(slidesPath, "utf-8");
-      const cleanMarkdown = cleanNotebookLmMarkdown(rawContent);
-      
-      // Keep full compiled version as fallback
-      slidesHtml = await marked.parse(cleanMarkdown);
-      
-      // Parse individual slides by splitting with --- horizontal separator
-      const rawSlides = cleanMarkdown.split(/---/);
-      const compiledSlides: string[] = [];
-      for (const slide of rawSlides) {
-        const trimmed = slide.trim();
-        if (trimmed) {
-          const compiled = await marked.parse(trimmed);
-          compiledSlides.push(compiled);
-        }
-      }
-      slidesHtmlList = compiledSlides;
-    }
-
-    // Load and compile video script
-    const videoPath = path.join(baseDir, "video.md");
-    if (fs.existsSync(videoPath)) {
-      const rawContent = fs.readFileSync(videoPath, "utf-8");
-      const cleanMarkdown = cleanNotebookLmMarkdown(rawContent);
-      videoHtml = await marked.parse(cleanMarkdown);
     }
   } catch (error) {
     console.error(`Error loading or compiling lesson materials for ${week}:`, error);
@@ -157,16 +124,12 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <WeekDetailClient 
-      lang={validatedLang} 
-      weekId={week} 
+      key={week}
+      lang={validatedLang}
+      weekId={week}
       lectureHtml={lectureHtml}
-      slidesHtml={slidesHtml}
-      slidesHtmlList={slidesHtmlList}
-      videoHtml={videoHtml}
       slidesPdfUrl={slidesPdfUrl}
       videoMp4Url={videoMp4Url}
     />
   );
 }
-
-

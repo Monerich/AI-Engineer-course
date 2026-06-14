@@ -36,7 +36,7 @@ export const curriculumData: {
   ru: {
     common: {
       courseTitle: "AI Automation & AI Agent Builder",
-      courseSubtitle: "Станьте сертифицированным разработчиком ИИ-автоматизаций и агентов за 6 месяцев",
+      courseSubtitle: "Станьте разработчиком ИИ-автоматизаций и агентов за 6 месяцев",
       month: "Месяц",
       week: "Неделя",
       hours: "ч",
@@ -2482,7 +2482,7 @@ export const curriculumData: {
             "Убедитесь, что ваш Capstone репозиторий оформлен: README содержит красивую схему графа, описание проекта, ссылку на видеодемо и LangSmith трейс.",
             "Опубликуйте пост о вашем проекте в LinkedIn / Twitter / Telegram-сообществе с короткой гифкой работы.",
             "Отправьте первую заявку на Upwork с ссылкой на ваш дипломный проект как главное доказательство экспертизы.",
-            "Поздравляем! Вы прошли путь от нуля до сертифицированного AI Automation Builder!"
+            "Поздравляем! Вы прошли путь от нуля до профессионального AI Automation Builder!"
           ]
         }
       }
@@ -2491,7 +2491,7 @@ export const curriculumData: {
   en: {
     common: {
       courseTitle: "AI Automation & AI Agent Builder",
-      courseSubtitle: "Become a certified AI Automation and Agent Developer in 6 Months",
+      courseSubtitle: "Become an AI Automation and Agent Developer in 6 Months",
       month: "Month",
       week: "Week",
       hours: "h",

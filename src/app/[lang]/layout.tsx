@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AI Automation & AI Agent Builder Course",
-  description: "Become a certified AI Automation Specialist and Agent Developer in 6 months. High-impact curriculum with practical n8n and Python projects.",
+  description: "Become an AI Automation Specialist and Agent Developer in 6 months. High-impact curriculum with practical n8n and Python projects.",
 };
 
 export default async function LanguageLayout({
@@ -24,7 +24,7 @@ export default async function LanguageLayout({
   children: React.ReactNode;
   params: Promise<{ lang: string }>;
 }) {
-  const { lang } = await params;
+  await params;
 
   return (
     <div className={`${geistSans.variable} ${geistMono.variable} min-h-screen flex flex-col font-sans`}>
