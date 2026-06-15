@@ -4,6 +4,7 @@ import path from "path";
 import { marked } from "marked";
 import WeekDetailClient from "../../../components/WeekDetailClient";
 
+const DEFAULT_MEDIA_BASE_URL = "https://ai-automation.expert";
 const WEEKS_WITHOUT_LOCALIZED_MEDIA = new Set(["week-2"]);
 
 interface PageProps {
@@ -141,7 +142,7 @@ export default async function Page({ params }: PageProps) {
   const videoMp4Url = fs.existsSync(videoMp4LangPath)
     ? `/lessons/${week}/${validatedLang}/video.mp4`
     : (fs.existsSync(videoMp4RootPath) ? `/lessons/${week}/video.mp4` : undefined);
-  const mediaBaseUrl = process.env.LESSON_MEDIA_BASE_URL?.replace(/\/$/, "");
+  const mediaBaseUrl = (process.env.LESSON_MEDIA_BASE_URL || DEFAULT_MEDIA_BASE_URL).replace(/\/$/, "");
   const remoteMediaLangSegment = validatedLang === "en" && !WEEKS_WITHOUT_LOCALIZED_MEDIA.has(week) ? "/en" : "";
   const remoteSlidesPdfUrl = mediaBaseUrl ? `${mediaBaseUrl}/lessons/${week}${remoteMediaLangSegment}/slides.pdf` : undefined;
   const remoteVideoMp4Url = mediaBaseUrl ? `${mediaBaseUrl}/lessons/${week}${remoteMediaLangSegment}/video.mp4` : undefined;
