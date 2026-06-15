@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { curriculumData } from "../data/curriculum";
-import { Globe, Award, CheckCircle, Clock, ChevronRight } from "lucide-react";
+import { Globe, Award, CheckCircle, ChevronRight } from "lucide-react";
 
 interface DashboardClientProps {
   lang: "ru" | "en";
@@ -120,21 +120,13 @@ export default function DashboardClient({ lang }: DashboardClientProps) {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-2 mt-2 pt-3 border-t border-[var(--border)]">
+            <div className="mt-2 pt-3 border-t border-[var(--border)]">
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase font-bold text-[var(--text-secondary)]">
                   {lang === "ru" ? "Пройдено" : "Completed"}
                 </span>
                 <span className="text-sm font-black text-[var(--text-primary)]">
                   {completedCount} / {totalWeeksCount} {lang === "ru" ? "нед." : "weeks"}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-[var(--text-secondary)]">
-                  {lang === "ru" ? "Нагрузка" : "Effort"}
-                </span>
-                <span className="text-sm font-black text-[var(--text-primary)]">
-                  10-12 {lang === "ru" ? "ч/нед" : "h/wk"}
                 </span>
               </div>
             </div>
@@ -203,15 +195,10 @@ export default function DashboardClient({ lang }: DashboardClientProps) {
                                 {common.weekHeader} {week.weekNum}
                               </span>
                               
-                              {isCompleted ? (
+                              {isCompleted && (
                                 <span className="flex items-center gap-1 text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">
                                   <CheckCircle className="w-3.5 h-3.5" />
                                   {lang === "ru" ? "Пройдено" : "Completed"}
-                                </span>
-                              ) : (
-                                <span className="flex items-center gap-1 text-[10px] font-semibold text-[var(--text-secondary)]">
-                                  <Clock className="w-3.5 h-3.5 text-[var(--accent)]" />
-                                  {week.hours}
                                 </span>
                               )}
                             </div>

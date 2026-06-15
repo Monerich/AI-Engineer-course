@@ -213,7 +213,7 @@ export default function WeekDetailClient({
               </span>
               <span className="text-xs text-[var(--text-secondary)] font-bold flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5 text-[var(--accent)]" />
-                {week.duration} • {week.hours}
+                {week.duration}
               </span>
             </div>
 

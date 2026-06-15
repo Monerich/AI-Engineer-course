@@ -27,7 +27,37 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <footer className="border-t border-[var(--border)] bg-[var(--bg-primary)] px-6 py-6">
+          <nav className="mx-auto flex w-full max-w-6xl flex-col gap-3 text-xs font-bold text-[var(--text-secondary)] sm:flex-row sm:items-center sm:justify-center sm:gap-6">
+            <a
+              href="https://t.me/monoai_automation"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[var(--accent)]"
+            >
+              Telegram channel
+            </a>
+            <a
+              href="https://ai-automation.expert"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[var(--accent)]"
+            >
+              ai-automation.expert
+            </a>
+            <a
+              href="https://t.me/monoai_automation_bot"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[var(--accent)]"
+            >
+              @monoai_automation_bot
+            </a>
+          </nav>
+        </footer>
+      </body>
     </html>
   );
 }
